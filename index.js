@@ -7,6 +7,7 @@ const log4js = require("log4js");
 
 // router
 const userRouter = require("./router/user.router")
+const driverRouter = require("./router/driver.router")
 const rideRouter = require("./router/ride.router")
 const errorHandler = require("./utils/error-handler");
 
@@ -24,6 +25,7 @@ app.all("/*", (req, res, next) => {
 });
 
 app.use("/user", userRouter);
+app.use("/driver", userRouter);
 app.use("/r", rideRouter);
 
 app.get('/', (req, res) => {

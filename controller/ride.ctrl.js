@@ -72,5 +72,32 @@ module.exports = {
         })
         .catch(err => res.status(400).json(err));
     }
+  },
+
+  //driver
+  requestRideFromDriver(req, res, next) {
+    console.log("get available ride for driver");
+    let offset = req.query.offset;
+    let rid = req.query.rid;
+    // revert status of rid to 0
+    const updateRide = rideService.updateStatusById(rid, 0);
+    const getNewRide = rideService.getNextAssignRide(offset);
+    if (rid) {
+      console.log("have rid");
+      updateRide.then(_ => {
+        // get new ride and update its status to 1
+        getNewRide.then(ride => {
+          res.json(ride)
+        })
+        .catch(err => res.status(400).json(err));
+      })
+      .catch(err => res.status(400).json(err));
+    } else {
+      console.log("no rid");
+      getNewRide.then(ride => {
+        res.json(ride)
+      })
+      .catch(err => res.status(400).json(err));
+    }
   }
 }

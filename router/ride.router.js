@@ -15,4 +15,6 @@ router.get('/:rid', rideController.getRide);
 router.get('/', rideController.getCurrentRide);
 router.get('/all', rideController.getRides);
 
+router.get('/d/request', rideController.requestRideFromDriver)
+
 module.exports = router;
