@@ -46,7 +46,7 @@ module.exports = {
   },
 
   //status: 0 = unassigned, 1 = assigning, 2 = picking up, 
-  //3 = ride start, 4 = finished, 5 = canceled
+  //3 = arrived user location, 4 = ride start, 5 = finished, 6 = canceled
   updateRideStatus(req, res, next) {
     logger.info('update ride status', req.body);
     let status = req.body.status

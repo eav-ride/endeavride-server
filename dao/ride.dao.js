@@ -8,7 +8,7 @@ dotenv.config();
 
 module.exports = {
   async create(userParam) {
-    //record new user to user table, status: 0 = unassigned, 1 = assigning, 2 = picking up, 3 = ride start, 4 = finished, 5 = canceled
+    //record new user to user table, status: 0 = unassigned, 1 = assigning, 2 = picking up, 3 = arrived user location, 4 = ride start, 5 = finished, 6 = canceled
     const text = `insert into rides(rid, status, uid, direction, create_time) values($1, $2, $3, $4, $5) returning *`;
     const values = [
       uuidv4(),

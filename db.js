@@ -103,6 +103,30 @@ module.exports = {
     }
   },
 
+  async createDriveRecordTable() {
+    const queryText = `CREATE TABLE IF NOT EXISTS
+      drive_record(
+        rid UUID PRIMARY KEY,
+        uid VARCHAR NOT NULL,
+        did VARCHAR,
+        status VARCHAR(1),
+        driver_location VARCHAR,
+        create_time TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS drive_record_rid ON drive_record(rid);
+      CREATE INDEX IF NOT EXISTS drive_record_uid ON drive_record(uid);
+      CREATE INDEX IF NOT EXISTS drive_record_did ON drive_record(did);`;
+
+    try {
+      res = await pool.query(queryText);
+      console.log(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      pool.end();
+    }
+  },
+
   /**
    * Drop User Table
    */
@@ -173,6 +197,31 @@ module.exports = {
 
   clearRideTable() {
     const queryText = `DELETE FROM rides;`;
+    pool.query(queryText, (err, res) => {
+      console.log(err, res);
+      pool.end();
+    });
+  },
+
+  dropDriveRecordTable() {
+    const queryText = `DROP TABLE IF EXISTS drive_record;
+    DROP INDEX IF EXISTS drive_record_rid;
+    DROP INDEX IF EXISTS drive_record_uid;
+    DROP INDEX IF EXISTS drive_record_did;`;
+    pool
+      .query(queryText)
+      .then((res) => {
+        console.log(res);
+        pool.end();
+      })
+      .catch((err) => {
+        console.error(err);
+        pool.end();
+      });
+  },
+
+  clearDriveRecordTable() {
+    const queryText = `DELETE FROM drive_record;`;
     pool.query(queryText, (err, res) => {
       console.log(err, res);
       pool.end();

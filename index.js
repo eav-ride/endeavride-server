@@ -9,6 +9,7 @@ const log4js = require("log4js");
 const userRouter = require("./router/user.router")
 const driverRouter = require("./router/driver.router")
 const rideRouter = require("./router/ride.router")
+const recordRouter = require("./router/driveRecord.router")
 const errorHandler = require("./utils/error-handler");
 
 log4js.configure("./log4js.json");
@@ -25,8 +26,9 @@ app.all("/*", (req, res, next) => {
 });
 
 app.use("/user", userRouter);
-app.use("/driver", userRouter);
+app.use("/driver", driverRouter);
 app.use("/r", rideRouter);
+app.use("/dr", recordRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World from Express ENDEAVRide!!')
