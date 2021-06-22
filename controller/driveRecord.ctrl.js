@@ -9,7 +9,7 @@ module.exports = {
   driveRecordService
     .create(req.body)
     .then(_ => {
-      res.status(200);
+      res.status(200).send();
     })
     .catch(err => res.status(400).json(err));
   },

@@ -9,12 +9,13 @@ router.use('/', (req, res, next) => {
 })
 
 router.post('/', rideController.newRide);
+router.post('/d', rideController.acceptRideRequest);
 router.post('/:rid', rideController.updateRideStatus);
 
-router.get('/:rid', rideController.getRide);
 router.get('/', rideController.getCurrentRide);
 router.get('/all', rideController.getRides);
-
-router.get('/d/request', rideController.requestRideFromDriver)
+router.get('/d/', rideController.getCurrentRideForDriver);
+router.get('/d/request', rideController.requestRideFromDriver);
+router.get('/:rid', rideController.getRide);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
 const db = require("./index");
-const logger = require("log4js").getLogger("user.dao");
+const logger = require("log4js").getLogger("ride.dao");
 
 const saltRounds = 10;
 dotenv.config();
@@ -84,6 +84,24 @@ module.exports = {
     });
   },
 
+  async getCurrentRidebyDid(did) {
+    return new Promise(async (resolve, reject) => {
+      logger.info("get ride by userid", did);
+      const text = `select * from rides where did = $1 and status != $2`;
+      try {
+        const { rows } = await db.query(text, [did, 4]);
+        if (!rows[0]) {
+          throw "no ride found!";
+        }
+        // logger.info(rows[0])
+        resolve(rows[0]);
+      } catch (error) {
+        logger.error(error);
+        reject(error);
+      }
+    });
+  },
+
   async getRidebyDid(uid) {
     return new Promise(async (resolve, reject) => {
       logger.info("get ride by driver id", uid);
@@ -123,7 +141,20 @@ module.exports = {
     });
   },
 
+  async updateStatusById(rid, status, did) {
+    logger.info("update ride by id", rid, status, did);
+    const updateOneQuery = `update rides set status = $1, did = $2 WHERE rid = $3 returning *`;
+    try {
+      const values = [status, did, rid];
+      const response = await db.query(updateOneQuery, values);
+      return response.rows[0];
+    } catch (err) {
+      throw err;
+    }
+  },
+
   async updateStatusById(rid, status) {
+    logger.info("update ride by id", rid, status);
     const updateOneQuery = `update rides set status = $1 WHERE rid = $2 returning *`;
     try {
       const values = [status, rid];

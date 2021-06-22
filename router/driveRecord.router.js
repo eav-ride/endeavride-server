@@ -8,7 +8,7 @@ router.use('/', (req, res, next) => {
     next()
 })
 
-router.post('/', recordController.newRide);
+router.post('/', recordController.newRecord);
 
 router.get('/:rid', recordController.getRecordByRid);
 router.get('/a/:rid', recordController.getAllRecordsByRid);

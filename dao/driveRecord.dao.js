@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
 const db = require("./index");
-const logger = require("log4js").getLogger("user.dao");
+const logger = require("log4js").getLogger("driveRecord.dao");
 
 const saltRounds = 10;
 dotenv.config();
@@ -9,7 +9,7 @@ dotenv.config();
 module.exports = {
   async create(userParam) {
     //record drive record table, status: 0 = picking user, 1 = arrived user location, 2 = driving to dest, 3 = arrived dest
-    const text = `insert into drive_record(rid, uid, did, status, driver_location, create_time) values($1, $2, $3, $4, $5) returning *`;
+    const text = `insert into drive_record(rid, uid, did, status, driver_location, create_time) values($1, $2, $3, $4, $5, $6) returning *`;
     const values = [
       userParam.rid,
       userParam.uid,

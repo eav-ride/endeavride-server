@@ -17,6 +17,7 @@ module.exports = {
     await this.createUserTable();
     await this.createDriverTable();
     await this.createRideTable();
+    await this.createDriveRecordTable();
   },
 
   /**
@@ -106,7 +107,7 @@ module.exports = {
   async createDriveRecordTable() {
     const queryText = `CREATE TABLE IF NOT EXISTS
       drive_record(
-        rid UUID PRIMARY KEY,
+        rid VARCHAR NOT NULL,
         uid VARCHAR NOT NULL,
         did VARCHAR,
         status VARCHAR(1),

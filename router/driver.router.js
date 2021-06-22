@@ -1,6 +1,6 @@
 const Router = require('express-promise-router');
 
-const userController = require('../controller/user.ctrl');
+const userController = require('../controller/driver.ctrl');
 const router = new Router()
 
 router.use('/', (req, res, next) => {
