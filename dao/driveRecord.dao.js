@@ -34,7 +34,7 @@ module.exports = {
   async getLatestDriveRecordbyRid(rid) {
     return new Promise(async (resolve, reject) => {
       logger.info("get drive record by rid", rid);
-      const text = `select * from drive_record where rid = $1 order by create_time asc limit 1`;
+      const text = `select * from drive_record where rid = $1 order by create_time desc limit 1`;
       try {
         const { rows } = await db.query(text, [rid]);
         if (!rows[0]) {
@@ -52,7 +52,7 @@ module.exports = {
   async getDriveRecordsbyRid(rid) {
     return new Promise(async (resolve, reject) => {
       logger.info("get drive record by rid", rid);
-      const text = `select * from drive_record where rid = $1 order by create_time asc`;
+      const text = `select * from drive_record where rid = $1 order by create_time desc`;
       try {
         const { rows } = await db.query(text, [rid]);
         if (!rows[0]) {

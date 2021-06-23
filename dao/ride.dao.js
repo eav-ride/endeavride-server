@@ -4,17 +4,19 @@ const db = require("./index");
 const logger = require("log4js").getLogger("ride.dao");
 
 const saltRounds = 10;
+const finish_state = 5;
 dotenv.config();
 
 module.exports = {
   async create(userParam) {
     //record new user to user table, status: 0 = unassigned, 1 = assigning, 2 = picking up, 3 = arrived user location, 4 = ride start, 5 = finished, 6 = canceled
-    const text = `insert into rides(rid, status, uid, direction, create_time) values($1, $2, $3, $4, $5) returning *`;
+    const text = `insert into rides(rid, status, uid, user_location, destination, create_time) values($1, $2, $3, $4, $5, $6) returning *`;
     const values = [
       uuidv4(),
       0,
       userParam.uid,
-      userParam.direction,
+      userParam.user_location,
+      userParam.destination,
       new Date(),
     ];
     return new Promise(async (resolve, reject) => {
@@ -71,7 +73,7 @@ module.exports = {
       logger.info("get ride by userid", uid);
       const text = `select * from rides where uid = $1 and status != $2`;
       try {
-        const { rows } = await db.query(text, [uid, 4]);
+        const { rows } = await db.query(text, [uid, finish_state]);
         if (!rows[0]) {
           throw "no ride found!";
         }
@@ -89,7 +91,7 @@ module.exports = {
       logger.info("get ride by userid", did);
       const text = `select * from rides where did = $1 and status != $2`;
       try {
-        const { rows } = await db.query(text, [did, 4]);
+        const { rows } = await db.query(text, [did, finish_state]);
         if (!rows[0]) {
           throw "no ride found!";
         }
@@ -141,7 +143,7 @@ module.exports = {
     });
   },
 
-  async updateStatusById(rid, status, did) {
+  async updateStatusWithDidById(rid, status, did) {
     logger.info("update ride by id", rid, status, did);
     const updateOneQuery = `update rides set status = $1, did = $2 WHERE rid = $3 returning *`;
     try {
@@ -165,10 +167,10 @@ module.exports = {
     }
   },
 
-  async startRide(rid) {
+  async startRide(rid, status) {
     const updateOneQuery = `update rides set status = $1, start_time = $2 WHERE rid = $3 returning *`;
     try {
-      const values = [3, new Date(), rid];
+      const values = [status, new Date(), rid];
       const response = await db.query(updateOneQuery, values);
       return response.rows[0];
     } catch (err) {
@@ -176,10 +178,10 @@ module.exports = {
     }
   },
 
-  async finishRide(rid) {
+  async finishRide(rid, status) {
     const updateOneQuery = `update rides set status = $1, finish_time = $2 WHERE rid = $3 returning *`;
     try {
-      const values = [4, new Date(), rid];
+      const values = [status, new Date(), rid];
       const response = await db.query(updateOneQuery, values);
       return response.rows[0];
     } catch (err) {

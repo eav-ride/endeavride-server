@@ -20,5 +20,8 @@ function errorHandler(err, req, res, next) {
 
     // default to 500 server error
     console.log('unknown error:', err)
+    console.log('error req header', req.headers)
+    console.log('error req body', req.body)
+    console.log('error req params', req.params)
     return res.status(500).json({ message: err });
 }

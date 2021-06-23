@@ -85,7 +85,8 @@ module.exports = {
         status VARCHAR NOT NULL,
         uid VARCHAR NOT NULL,
         did VARCHAR,
-        direction VARCHAR,
+        user_location VARCHAR,
+        destination VARCHAR,
         create_time TIMESTAMP,
         start_time TIMESTAMP,
         finish_time TIMESTAMP

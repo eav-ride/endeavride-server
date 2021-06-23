@@ -5,100 +5,110 @@ const rideService = require("../dao/ride.dao");
 
 module.exports = {
   newRide(req, res, next) {
-  logger.info("create new ride request...");
-  rideService
-    .create(req.body)
-    .then(ride => {
-      res.json(ride)
-    })
-    .catch(err => res.status(400).json(err));
+    console.log("newRide");
+    logger.info("create new ride request...", req.headers.uid);
+    rideService
+      .create(req.body)
+      .then((ride) => {
+        res.json(ride);
+      })
+      .catch((err) => res.status(400).json(err));
   },
 
   getRide(req, res, next) {
-    logger.info("get ride...", req.body);
+    console.log("getRide");
+    logger.info("get ride...", req.headers.uid);
     rideService
       .getRidebyId(req.params.rid)
-      .then(ride => {
-        res.json(ride)
+      .then((ride) => {
+        res.json(ride);
       })
-      .catch(err => res.status(400).json(err));
+      .catch((err) => res.status(400).json(err));
   },
 
   getCurrentRide(req, res, next) {
-    console.log("request header: ", req.headers);
+    console.log("getCurrentRide");
     logger.info("get current ride...", req.headers.uid);
     rideService
       .getCurrentRidebyUid(req.headers.uid)
-      .then(ride => {
-        res.json(ride)
+      .then((ride) => {
+        res.json(ride);
       })
-      .catch(err => res.status(400).json(err));
+      .catch((err) => res.status(400).json(err));
   },
 
   getRides(req, res, next) {
-    logger.info('get all rides for user', req.body);
+    console.log("get all rides for user");
+    logger.info("get all rides for user", req.headers.uid);
     rideService
       .getRidesbyUid(req.body.uid)
-      .then(ride => {
-        res.json(ride)
+      .then((ride) => {
+        res.json(ride);
       })
-      .catch(err => res.status(400).json(err));
+      .catch((err) => res.status(400).json(err));
   },
 
-  //status: 0 = unassigned, 1 = assigning, 2 = picking up, 
+  //status: 0 = unassigned, 1 = assigning, 2 = picking up,
   //3 = arrived user location, 4 = ride start, 5 = finished, 6 = canceled
   updateRideStatus(req, res, next) {
-    logger.info('update ride status', req.body);
-    let status = req.body.status
-    if (status == 5) {  //finish ride
+    console.log("updateRideStatus", req.body);
+    logger.info("update ride status", req.headers.uid || req.headers.did);
+    let status = req.body.status;
+    console.log("status: ",status, status == 4, status == "4")
+    if (status == 5) {
+      //finish ride
       rideService
-        .finishRide(req.params.rid)
-        .then(ride => {
-          res.json(ride)
+        .finishRide(req.params.rid, status)
+        .then((ride) => {
+          res.json(ride);
         })
-        .catch(err => res.status(400).json(err));
-    } else if (status == 4) { //start ride
+        .catch((err) => res.status(400).json(err));
+    } else if (status == 4) {
+      //start ride
       rideService
-        .startRide(req.params.rid)
-        .then(ride => {
-          res.json(ride)
+        .startRide(req.params.rid, status)
+        .then((ride) => {
+          res.json(ride);
         })
-        .catch(err => res.status(400).json(err));
-    } else { //assigning ride/picking up/canceling
+        .catch((err) => res.status(400).json(err));
+    } else {
+      //assigning ride/picking up/canceling
       rideService
         .updateStatusById(req.params.rid, status)
-        .then(ride => {
-          res.json(ride)
+        .then((ride) => {
+          res.json(ride);
         })
-        .catch(err => res.status(400).json(err));
+        .catch((err) => res.status(400).json(err));
     }
   },
 
   //driver
   requestRideFromDriver(req, res, next) {
-    console.log("get available ride for driver");
+    console.log("requestRideFromDriver");
+    logger.info("requestRideFromDriver", req.headers.did);
     let offset = req.query.offset;
     let rid = req.query.rid;
     let did = req.headers.did;
     // revert status of rid to 0 (unassigned)
-    const updateRide = rideService.updateStatusById(rid, 0, did);
-    const getNewRide = rideService.getNextAssignRide(offset);
     if (rid) {
       console.log("have rid");
-      updateRide.then(_ => {
-        // get new ride and update its status to 1 (assising)
-        getNewRide.then(ride => {
-          res.json(ride)
+      rideService.updateStatusWithDidById(rid, 0, did)
+        .then((_) => {
+          // get new ride and update its status to 1 (assising)
+          rideService.getNextAssignRide(offset)
+            .then((ride) => {
+              res.json(ride);
+            })
+            .catch((err) => res.status(400).json(err));
         })
-        .catch(err => res.status(400).json(err));
-      })
-      .catch(err => res.status(400).json(err));
+        .catch((err) => res.status(400).json(err));
     } else {
       console.log("no rid");
-      getNewRide.then(ride => {
-        res.json(ride)
-      })
-      .catch(err => res.status(400).json(err));
+      rideService.getNextAssignRide(offset)
+        .then((ride) => {
+          res.json(ride);
+        })
+        .catch((err) => res.status(400).json(err));
     }
   },
 
@@ -107,21 +117,23 @@ module.exports = {
     logger.info("get current ride for driver...", req.headers.did);
     rideService
       .getCurrentRidebyDid(req.headers.did)
-      .then(ride => {
-        res.json(ride)
+      .then((ride) => {
+        res.json(ride);
       })
-      .catch(err => res.status(400).json(err));
+      .catch((err) => res.status(400).json(err));
   },
 
   acceptRideRequest(req, res, next) {
-    console.log("get available ride for driver");
+    console.log("acceptRideRequest", req.body);
+    logger.info("acceptRideRequest", req.headers.did);
     let rid = req.body.rid;
     let did = req.headers.did;
     // set status to 2 (picking)
-    const updateRide = rideService.updateStatusById(rid, 2, did);
-    updateRide.then(ride => {
-        res.json(ride)
-    })
-    .catch(err => res.status(400).json(err));
-  }
-}
+    const updateRide = rideService.updateStatusWithDidById(rid, 2, did);
+    updateRide
+      .then((ride) => {
+        res.json(ride);
+      })
+      .catch((err) => res.status(400).json(err));
+  },
+};
