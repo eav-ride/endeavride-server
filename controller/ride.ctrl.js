@@ -28,9 +28,9 @@ module.exports = {
 
   getCurrentRide(req, res, next) {
     console.log("getCurrentRide");
-    logger.info("get current ride...", req.headers.uid);
+    logger.info("get current ride...", req.headers.uid, req.query.showfinish);
     rideService
-      .getCurrentRidebyUid(req.headers.uid)
+      .getCurrentRidebyUid(req.headers.uid, req.query.showfinish)
       .then((ride) => {
         res.json(ride);
       })
@@ -92,10 +92,10 @@ module.exports = {
     // revert status of rid to 0 (unassigned)
     if (rid) {
       console.log("have rid");
-      rideService.updateStatusWithDidById(rid, 0, did)
+      rideService.updateStatusWithDidById(rid, 0, "")
         .then((_) => {
           // get new ride and update its status to 1 (assising)
-          rideService.getNextAssignRide(offset)
+          rideService.getNextAssignRide(did, offset)
             .then((ride) => {
               res.json(ride);
             })
@@ -104,7 +104,7 @@ module.exports = {
         .catch((err) => res.status(400).json(err));
     } else {
       console.log("no rid");
-      rideService.getNextAssignRide(offset)
+      rideService.getNextAssignRide(did, offset)
         .then((ride) => {
           res.json(ride);
         })

@@ -68,12 +68,18 @@ module.exports = {
     });
   },
 
-  async getCurrentRidebyUid(uid) {
+  async getCurrentRidebyUid(uid, showfinish) {
     return new Promise(async (resolve, reject) => {
-      logger.info("get ride by userid", uid);
-      const text = `select * from rides where uid = $1 and status != $2`;
+      logger.info("get ride by userid", uid, showfinish);
+      var text = `select * from rides where uid = $1`;
+      var params = [uid];
+      if (showfinish!='true') {
+        text +=  " and status != $2";
+        params.push(finish_state);
+      }
+      console.log('params for current ride: ', params)
       try {
-        const { rows } = await db.query(text, [uid, finish_state]);
+        const { rows } = await db.query(text, params);
         if (!rows[0]) {
           throw "no ride found!";
         }
@@ -122,18 +128,18 @@ module.exports = {
     });
   },
 
-  async getNextAssignRide(offset) {
+  async getNextAssignRide(did, offset) {
     return new Promise(async (resolve, reject) => {
       console.log("get ride by status");
       const select = `SELECT * FROM rides WHERE status = '0' ORDER BY create_time DESC OFFSET $1 LIMIT 1`;
-      const update = `UPDATE rides SET status = 1 WHERE rid = $1 RETURNING *`;
+      const update = `UPDATE rides SET status = 1, did = $1 WHERE rid = $2 RETURNING *`;
       try {
         const { rows } = await db.query(select, [offset]);
         if (!rows[0]) {
           throw "no ride found!";
         }
         console.log(rows[0])
-        const response = await db.query(update, [rows[0].rid]);
+        const response = await db.query(update, [did, rows[0].rid]);
         console.log(response.rows[0])
         resolve(response.rows[0]);
       } catch (error) {
