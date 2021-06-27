@@ -54,9 +54,8 @@ module.exports = {
     console.log("updateRideStatus", req.body);
     logger.info("update ride status", req.headers.uid || req.headers.did);
     let status = req.body.status;
-    console.log("status: ",status, status == 4, status == "4")
-    if (status == 5) {
-      //finish ride
+    if (status == 5 || status == 6) {
+      //finish/cancel ride
       rideService
         .finishRide(req.params.rid, status)
         .then((ride) => {
@@ -129,11 +128,19 @@ module.exports = {
     let rid = req.body.rid;
     let did = req.headers.did;
     // set status to 2 (picking)
-    const updateRide = rideService.updateStatusWithDidById(rid, 2, did);
-    updateRide
-      .then((ride) => {
-        res.json(ride);
-      })
-      .catch((err) => res.status(400).json(err));
+    rideService.getRidebyId(rid)
+    .then((ride) => {
+      if (ride.status < 2) {
+        let status = ride.type == 0 ? 2 : 4
+        rideService.updateStatusWithDidById(rid, status, did)
+          .then((ride) => {
+            res.json(ride);
+          })
+          .catch((err) => res.status(400).json(err));
+      } else {
+        res.json(ride)
+      }
+    })
+    .catch((err) => res.status(400).json(err));
   },
 };

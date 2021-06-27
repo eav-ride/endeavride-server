@@ -82,7 +82,8 @@ module.exports = {
     const queryText = `CREATE TABLE IF NOT EXISTS
       rides(
         rid UUID PRIMARY KEY,
-        status VARCHAR NOT NULL,
+        status INTEGER NOT NULL,
+        type SMALLINT,
         uid VARCHAR NOT NULL,
         did VARCHAR,
         user_location VARCHAR,

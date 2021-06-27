@@ -9,11 +9,13 @@ dotenv.config();
 
 module.exports = {
   async create(userParam) {
+    //ride type: 0 = ride service, 1 = home service
     //record new user to user table, status: 0 = unassigned, 1 = assigning, 2 = picking up, 3 = arrived user location, 4 = ride start, 5 = finished, 6 = canceled
-    const text = `insert into rides(rid, status, uid, user_location, destination, create_time) values($1, $2, $3, $4, $5, $6) returning *`;
+    const text = `insert into rides(rid, status, type, uid, user_location, destination, create_time) values($1, $2, $3, $4, $5, $6, $7) returning *`;
     const values = [
       uuidv4(),
       0,
+      userParam.type,
       userParam.uid,
       userParam.user_location,
       userParam.destination,
@@ -71,10 +73,10 @@ module.exports = {
   async getCurrentRidebyUid(uid, showfinish) {
     return new Promise(async (resolve, reject) => {
       logger.info("get ride by userid", uid, showfinish);
-      var text = `select * from rides where uid = $1`;
-      var params = [uid];
+      var text = `select * from rides where uid = $1 and status != $2`;
+      var params = [uid, 6];
       if (showfinish!='true') {
-        text +=  " and status != $2";
+        text +=  " and status != $3";
         params.push(finish_state);
       }
       console.log('params for current ride: ', params)
@@ -95,7 +97,7 @@ module.exports = {
   async getCurrentRidebyDid(did) {
     return new Promise(async (resolve, reject) => {
       logger.info("get ride by userid", did);
-      const text = `select * from rides where did = $1 and status != $2`;
+      const text = `select * from rides where did = $1 and status < $2`;
       try {
         const { rows } = await db.query(text, [did, finish_state]);
         if (!rows[0]) {
@@ -151,12 +153,13 @@ module.exports = {
 
   async updateStatusWithDidById(rid, status, did) {
     logger.info("update ride by id", rid, status, did);
-    const updateOneQuery = `update rides set status = $1, did = $2 WHERE rid = $3 returning *`;
+    const updateOneQuery = `update rides set status = $1, did = $2 WHERE rid = $3 and status < 2 returning *`;
     try {
       const values = [status, did, rid];
       const response = await db.query(updateOneQuery, values);
       return response.rows[0];
     } catch (err) {
+      console.log(err)
       throw err;
     }
   },
