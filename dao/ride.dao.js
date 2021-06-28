@@ -133,7 +133,7 @@ module.exports = {
   async getNextAssignRide(did, offset) {
     return new Promise(async (resolve, reject) => {
       console.log("get ride by status");
-      const select = `SELECT * FROM rides WHERE status = '0' ORDER BY create_time DESC OFFSET $1 LIMIT 1`;
+      const select = `SELECT * FROM rides WHERE status = '0' ORDER BY create_time ASC OFFSET $1 LIMIT 1`;
       const update = `UPDATE rides SET status = 1, did = $1 WHERE rid = $2 RETURNING *`;
       try {
         const { rows } = await db.query(select, [offset]);

@@ -88,17 +88,22 @@ module.exports = {
     let offset = req.query.offset;
     let rid = req.query.rid;
     let did = req.headers.did;
+    let receiveNewTask = req.body.receive_new
     // revert status of rid to 0 (unassigned)
     if (rid) {
       console.log("have rid");
       rideService.updateStatusWithDidById(rid, 0, "")
-        .then((_) => {
-          // get new ride and update its status to 1 (assising)
-          rideService.getNextAssignRide(did, offset)
-            .then((ride) => {
-              res.json(ride);
-            })
-            .catch((err) => res.status(400).json(err));
+        .then((ride) => {
+          if (receiveNewTask) {
+            // get new ride and update its status to 1 (assising)
+            rideService.getNextAssignRide(did, offset)
+              .then((ride) => {
+                res.json(ride);
+              })
+              .catch((err) => res.status(400).json(err));
+          } else {
+            res.json(ride);
+          }
         })
         .catch((err) => res.status(400).json(err));
     } else {
