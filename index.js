@@ -1,5 +1,7 @@
 const express = require('express')
 const app = express()
+const fs = require("fs");
+const https = require("https");
 const port = 3300
 const parseUrl = require("parseurl");
 const bodyParser = require("body-parser");
@@ -39,3 +41,17 @@ app.use(errorHandler);
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
+
+// below is using https, when private key and certification are ready, replace the file path below and uncomment below code to replace app.listen(port, block) function
+// server = https
+//   .createServer(
+//     {
+//       key: fs.readFileSync("./private/localdomain.insecure.key"),
+//       cert: fs.readFileSync("./private/localdomain.crt"),
+//     },
+//     app
+//   )
+//   .listen(8443, () => {
+//     console.log("HTTPS Listening on port 8443!");
+//     logger.info("HTTPS Listening on port 8443!");
+//   });
